@@ -415,6 +415,7 @@ LoadingsPlots=function(fit,color.line="darkgray",
 #' by SIDA, SIDANet, and SELPCCA methods.
 #'
 #' @param fit the output from cvSIDA, cvSIDANet, or cvselpcca methods
+#' @export
 #'
 #' @return A data.frame with three columns. The first two columns are the non-zero loadings
 #' The last column is the View from which the loadings were obtained. 
