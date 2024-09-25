@@ -8,6 +8,7 @@
 #' @param Ytest a vector of test response values
 #'
 #' @importFrom stats logLik AIC BIC deviance predict
+#' @export
 #' @return A data.frame
 #'
 #'
