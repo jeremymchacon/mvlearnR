@@ -448,14 +448,14 @@ Loadings = function(fit){
                         FUN = function(jj){
                           fit$hatalpha[[jj]]%>%
                             as.data.frame() %>%
-                            mutate(Variable = colnames(fit$InputData[[jj]])) %>%
-                            mutate(View = jj) %>%
-                            mutate(Loading = V1) %>%
+                            dplyr::mutate(Variable = colnames(fit$InputData[[jj]])) %>%
+                            dplyr::mutate(View = jj) %>%
+                            dplyr::mutate(Loading = V1) %>%
                             dplyr::select(-V1) %>%
-                            mutate(`Absolute Loading` = abs(Loading)) %>%
-                            mutate(`Normalized Relative Importance` = `Absolute Loading` / max(`Absolute Loading`)) %>%
-                            filter(`Absolute Loading` > 0) %>%
-                            arrange(desc(`Normalized Relative Importance`))
+                            dplyr::mutate(`Absolute Loading` = abs(Loading)) %>%
+                            dplyr::mutate(`Normalized Relative Importance` = `Absolute Loading` / max(`Absolute Loading`)) %>%
+                            dplyr::filter(`Absolute Loading` > 0) %>%
+                            dplyr::arrange(desc(`Normalized Relative Importance`))
                         }) %>%
         do.call("rbind", .)
     }else if(is(fit, "SELPCCA")){
