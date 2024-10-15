@@ -444,28 +444,42 @@ Loadings = function(fit){
   
   if(ncomp == 1){
     if(is(fit,"SIDA") | is(fit, "SIDANet")){
-      stop("Loadings not applicable with one discriminant vector" , call. = FALSE)
+      loadings = lapply(1:length(hatalpha),
+                        FUN = function(jj){
+                          fit$hatalpha[[jj]]%>%
+                            as.data.frame() %>%
+                            mutate(Variable = colnames(fit$InputData[[jj]])) %>%
+                            mutate(View = jj) %>%
+                            mutate(Loading = V1) %>%
+                            dplyr::select(-V1) %>%
+                            mutate(`Absolute Loading` = abs(Loading)) %>%
+                            mutate(`Normalized Relative Importance` = `Absolute Loading` / max(`Absolute Loading`)) %>%
+                            filter(`Absolute Loading` > 0) %>%
+                            arrange(desc(`Normalized Relative Importance`))
+                        }) %>%
+        do.call("rbind", .)
     }else if(is(fit, "SELPCCA")){
       stop("Loadings not applicable with one CCA vector " , call. = FALSE)
     }
+  }else{
+    # the loadings are basically just the non-zero hatalpha. 
+    # here we grab them, rbind them by View, and sort them by absolute value,
+    # then toss the zeros s
+    loadings = lapply(1:length(hatalpha),
+                      FUN = function(jj){
+                        loadings=as.data.frame(scale(hatalpha[[jj]],center=FALSE, scale=FALSE))
+                        row.names(loadings) = colnames(fit$InputData[[jj]])
+                        loading_order=order(rowSums(abs(hatalpha[[jj]])),
+                                            decreasing = TRUE)
+                        loadings = loadings[loading_order, ]
+                        loadings = loadings[rowSums(abs(loadings)) > 0,]
+                        colnames(loadings) = c("Loadings1","Loadings2")
+                        loadings$View = jj
+                        loadings$Variable = row.names(loadings)
+                        loadings
+                      }) %>%
+      do.call("rbind", .)
   }
-  # the loadings are basically just the non-zero hatalpha. 
-  # here we grab them, rbind them by View, and sort them by absolute value,
-  # then toss the zeros s
-  loadings = lapply(1:length(hatalpha),
-                    FUN = function(jj){
-                      loadings=as.data.frame(scale(hatalpha[[jj]],center=FALSE, scale=FALSE))
-                      row.names(loadings) = colnames(fit$InputData[[jj]])
-                      loading_order=order(rowSums(abs(hatalpha[[jj]])),
-                                          decreasing = TRUE)
-                      loadings = loadings[loading_order, ]
-                      loadings = loadings[rowSums(abs(loadings)) > 0,]
-                      colnames(loadings) = c("Loadings1","Loadings2")
-                      loadings$View = jj
-                      loadings$Variable = row.names(loadings)
-                      loadings
-                    }) %>%
-    do.call("rbind", .)
   loadings
 }
 
